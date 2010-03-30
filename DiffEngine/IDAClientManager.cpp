@@ -189,40 +189,44 @@ DWORD IDAClientManager::CreateIDACommandProcessor()
 	return 1;
 }
 
-void IDAClientManager::ShowResultsOnIDA()
+void SendAddMatchAddrTLVData(FunctionMatchInfo &Data,PVOID Context)
 {
-	vector <FunctionMatchInfo>::iterator iter;
-	for(iter=pDiffMachine->FunctionMatchInfoList.begin();iter!=pDiffMachine->FunctionMatchInfoList.end();iter++)
+	OneIDAClientManager *TheSource=(OneIDAClientManager *)Context;
+	if(TheSource)
 	{
 		TheSource->SendTLVData(
 			ADD_MATCH_ADDR,
-			(PBYTE)&(*iter),
-			sizeof(*iter));
+			(PBYTE)&(Data),
+			sizeof(Data));
 	}
-	/*TODO:
+}
+
+void SendUnidentifiedAddrTLVData(DWORD Data,PVOID Context)
+{
+	OneIDAClientManager *TheSource=(OneIDAClientManager *)Context;
+	if(TheSource)
+	{
+		TheSource->SendTLVData(
+			ADD_UNINDENTIFIED_ADDR,
+			(PBYTE)&(Data),
+			sizeof(Data));
+	}
+}
+
+void IDAClientManager::ShowResultsOnIDA()
+{
+	pDiffMachine->ExecuteOnFunctionMatchInfoList(SendAddMatchAddrTLVData,(PVOID)TheSource);
+	pDiffMachine->ExecuteOnTheSourceUnidentifedBlockHash(SendUnidentifiedAddrTLVData,(PVOID)TheSource);
+	pDiffMachine->ExecuteOnTheTargetUnidentifedBlockHash(SendUnidentifiedAddrTLVData,(PVOID)TheTarget);
+#ifdef TODO
 	for(iter=ReverseFunctionMatchInfoList.begin();iter!=ReverseFunctionMatchInfoList.end();iter++)
 	{
 		TheTarget->SendTLVData(
 			ADD_MATCH_ADDR,
 			(PBYTE)&(*iter),
 			sizeof(*iter));
-	}*/
-
-	hash_set <DWORD>::iterator unidentified_iter;
-	for(unidentified_iter=pDiffMachine->TheSourceUnidentifedBlockHash.begin();unidentified_iter!=pDiffMachine->TheSourceUnidentifedBlockHash.end();unidentified_iter++)
-	{
-		TheSource->SendTLVData(
-			ADD_UNINDENTIFIED_ADDR,
-			(PBYTE)&(*unidentified_iter),
-			sizeof(DWORD));
 	}
-	for(unidentified_iter=pDiffMachine->TheTargetUnidentifedBlockHash.begin();unidentified_iter!=pDiffMachine->TheTargetUnidentifedBlockHash.end();unidentified_iter++)
-	{
-		TheTarget->SendTLVData(
-			ADD_UNINDENTIFIED_ADDR,
-			(PBYTE)&(*unidentified_iter),
-			sizeof(DWORD));
-	}
+#endif
 	TheSource->SendTLVData(
 		SHOW_DATA,
 		(PBYTE)"test",
@@ -301,6 +305,7 @@ void IDAClientManager::RunIDAToGenerateDB(char *TheFilename,DWORD StartAddress,D
 	{
 		//Run IDA
 		dprintf("Analyzing [%s](%s)\n",TheFilename,IDCFilename);
+		dprintf("Executing \"%s\" -A -S\"%s\" \"%s\"",IDAPath,IDCFilename,TheFilename);
 		Execute(TRUE,"\"%s\" -A -S\"%s\" \"%s\"",IDAPath,IDCFilename,TheFilename);
 		free(IDCFilename);
 	}
