@@ -88,6 +88,7 @@ public:
 		SetFilePointer(hOutFile,Offset,0L,dwMoveMethod);
 		return 0;
 	}
+
 	int SetInFile(char *Filename,DWORD Offset=0L,DWORD Length=0L,DWORD dwMoveMethod=FILE_BEGIN)
 	{
 		printf("Filename=%s\n",Filename);
@@ -112,6 +113,7 @@ public:
 		InBufferOffset=0;
 		return TRUE;
 	}
+
 	DWORD Write()
 	{
 		DWORD ret=0;
@@ -141,7 +143,7 @@ public:
 		return ret;
 	}
 
-	int WriteData(unsigned char *in,DWORD dwBytesRead)
+	int WriteData( unsigned char *in, DWORD dwBytesRead )
 	{
 		unsigned char out[CHUNK];
 		int flush=dwBytesRead==0?Z_FINISH:Z_NO_FLUSH;
@@ -192,7 +194,7 @@ public:
 		return TRUE;
 	}
 
-	DWORD ReadData(unsigned char *buffer,DWORD dwLength)
+	DWORD ReadData( unsigned char *buffer, DWORD dwLength )
 	{
 		if(
 			(InBufferLength>InBufferOffset) &&
@@ -292,4 +294,3 @@ public:
 		return -1;
 	}
 };
-
