@@ -147,7 +147,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-int getopt(int argc,TCHAR *argv[],TCHAR *optstring,int *p_optind,TCHAR **p_optarg)
+int getopt(int argc,TCHAR *argv[],TCHAR *optstring,int *p_optind,TCHAR **p_optarg,bool HasProgramName)
 {
 	static TCHAR *next=NULL;
 	if((*p_optind)==0)
@@ -156,8 +156,10 @@ int getopt(int argc,TCHAR *argv[],TCHAR *optstring,int *p_optind,TCHAR **p_optar
 	(*p_optarg)=NULL;
 	if(next==NULL || *next==TEXT('\0'))
 	{
-		if((*p_optind)==0)
+		if((*p_optind)==0 && HasProgramName)
+		{
 			(*p_optind)++;
+		}
 
 		if((*p_optind)>=argc || argv[(*p_optind)][0]!=TEXT('-') || argv[(*p_optind)][1]==TEXT('\0'))
 		{

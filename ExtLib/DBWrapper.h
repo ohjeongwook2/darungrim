@@ -7,11 +7,11 @@ class DBWrapper
 private:
 	sqlite3 *db;
 public:
-	DBWrapper(char *Filename=NULL)
+	DBWrapper( char *DatabaseName = NULL )
 	{
 		db=NULL;
-		if(Filename)
-			CreateDatabase(Filename);
+		if( DatabaseName )
+			CreateDatabase( DatabaseName );
 	}
 
 	~DBWrapper()
@@ -19,14 +19,29 @@ public:
 		CloseDatabase();
 	}
 
-	BOOL CreateDatabase(char *Filename)
+	BOOL Open( char *DatabaseName )
+	{
+		CreateDatabase( DatabaseName );
+	}
+
+	void CloseDatabase()
+	{
+		//Close Database
+		if(db)
+		{
+			sqlite3_close(db);
+			db=NULL;
+		}
+	}
+
+	BOOL CreateDatabase( char *DatabaseName )
 	{		
 		//Database Setup
-		printf("Opening Database [%s]\n",Filename);
-		int rc=sqlite3_open(Filename,&db);
+		printf("Opening Database [%s]\n", DatabaseName );
+		int rc = sqlite3_open( DatabaseName, &db );
 		if(rc)
 		{
-			printf("Opening Database [%s] Failed\n",Filename);
+			printf("Opening Database [%s] Failed\n", DatabaseName );
 			sqlite3_close(db);
 			db=NULL;
 			return FALSE;
@@ -49,17 +64,7 @@ public:
 		return (int)sqlite3_last_insert_rowid(db);
 	}
 
-	void CloseDatabase()
-	{
-		//Close Database
-		if(db)
-		{
-			sqlite3_close(db);
-			db=NULL;
-		}
-	}
-
-	int ExecuteStatement(sqlite3_callback callback,void *context,char *format, ...)
+	int ExecuteStatement( sqlite3_callback callback, void *context, char *format, ... )
 	{
 		int debug=0;
 
@@ -100,7 +105,7 @@ public:
 			}
 			if(statement_buffer)
 			{
-				rc=sqlite3_exec(db,statement_buffer,callback,context,&zErrMsg);
+				rc=sqlite3_exec(db, statement_buffer,callback, context, &zErrMsg );
 				if(rc!=SQLITE_OK)
 				{
 					if(debug>0)
@@ -113,9 +118,9 @@ public:
 					}
 				}
 #ifdef USE_VSNPRINTF
-				free(statement_buffer);
+				free( statement_buffer );
 #else
-				sqlite3_free(statement_buffer);
+				sqlite3_free( statement_buffer );
 #endif
 			}
 			return rc;
@@ -134,13 +139,13 @@ public:
 
 	static int ReadRecordIntegerCallback(void *arg,int argc,char **argv,char **names)
 	{
-	#if DEBUG_LEVEL > 2
+#if DEBUG_LEVEL > 2
 		printf("%s: arg=%x %d\n",__FUNCTION__,arg,argc);
 		for(int i=0;i<argc;i++)
 		{
 			printf("	[%d] %s=%s\n",i,names[i],argv[i]);
 		}
-	#endif
+#endif
 		*(int *)arg=atoi(argv[0]);
 		return 0;
 	}

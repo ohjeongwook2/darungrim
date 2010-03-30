@@ -18,6 +18,6 @@
 #include <tchar.h>
 #include <stdio.h>
 
-int getopt(int argc,TCHAR *argv[],TCHAR *optstring,int *p_optind,TCHAR **p_optarg);
+int getopt(int argc,TCHAR *argv[],TCHAR *optstring,int *p_optind,TCHAR **p_optarg,bool HasProgramName=true);
 
 #endif //XGETOPT_H
