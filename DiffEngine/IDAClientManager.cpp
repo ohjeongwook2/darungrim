@@ -246,7 +246,7 @@ void IDAClientManager::ShowResultsOnIDA()
 	Exit(0);\n\
 }"
 
-void IDAClientManager::SetIDAPath(char *ParamIDAPath)
+void IDAClientManager::SetIDAPath( const char *ParamIDAPath )
 {
 	if(IDAPath)
 		free(IDAPath);
