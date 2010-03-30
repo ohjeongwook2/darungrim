@@ -87,13 +87,14 @@ private:
 
 	void RemoveDuplicates();
 	void RevokeTreeMatchMapIterInfo(DWORD address,DWORD match_address);
-public:
+	void GenerateFunctionMatchInfo();
+
 	hash_set <DWORD> TheSourceUnidentifedBlockHash;
 	hash_set <DWORD> TheTargetUnidentifedBlockHash;
 
 	vector <FunctionMatchInfo> FunctionMatchInfoList;
 	vector <FunctionMatchInfo> ReverseFunctionMatchInfoList;
-
+public:
 	DiffMachine(OneIDAClientManager *the_source=NULL,OneIDAClientManager *the_target=NULL);
 	void SetOneIDAClientManagers(OneIDAClientManager *the_source,OneIDAClientManager *the_target);
 	OneIDAClientManager *GetTheSource();
@@ -124,10 +125,6 @@ public:
 	void AnalyzeFunctionSanity();
 	DWORD GetMatchAddr(int index,DWORD address);
 
-	//Function Match Info
-private:
-	void GenerateFunctionMatchInfo();
-public:
 	int GetFunctionMatchInfoCount();
 	FunctionMatchInfo GetFunctionMatchInfo(int i);
 
@@ -139,4 +136,27 @@ public:
 	BOOL Save(DBWrapper& OutputDB,hash_set <DWORD> *pTheSourceSelectedAddresses=NULL,hash_set <DWORD> *pTheTargetSelectedAddresses=NULL);
 	BOOL Retrieve(DBWrapper& InputDB,BOOL bRetrieveDataForAnalysis=FALSE,int TheSourceFileID=1,int TheTargetFileID=2,BOOL bLoadMatchMapToMemory=FALSE);
 	char *GetMatchTypeStr(int Type);
+
+	void ExecuteOnFunctionMatchInfoList(void (Callback(FunctionMatchInfo &Data,PVOID Context)),PVOID Context)
+	{
+		for(vector <FunctionMatchInfo>::iterator iter=FunctionMatchInfoList.begin();iter!=FunctionMatchInfoList.end();iter++)
+		{
+			Callback(*iter,Context);
+		}
+	}
+	
+	void ExecuteOnTheSourceUnidentifedBlockHash(void (Callback(DWORD Data,PVOID Context)),PVOID Context)
+	{
+		for(hash_set <DWORD>::iterator iter=TheSourceUnidentifedBlockHash.begin();iter!=TheSourceUnidentifedBlockHash.end();iter++)
+		{
+			Callback(*iter,Context);
+		}
+	}
+	void ExecuteOnTheTargetUnidentifedBlockHash(void (Callback(DWORD Data,PVOID Context)),PVOID Context)
+	{
+		for(hash_set <DWORD>::iterator iter=TheTargetUnidentifedBlockHash.begin();iter!=TheTargetUnidentifedBlockHash.end();iter++)
+		{
+			Callback(*iter,Context);
+		}
+	}
 };
